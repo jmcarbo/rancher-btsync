@@ -1,0 +1,11 @@
+btsync:
+  build: .
+  #image: rancher-btsync:2
+  command:
+    - ANDLEVCQJ2OWJ6CKTHB4JJM4S6GBEGTVX
+  stdin_open: true
+  tty: true
+  volumes:
+    - /home/docker/databtsync:/data
+  labels:
+    io.rancher.scheduler.global: 'true'

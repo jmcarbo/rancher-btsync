@@ -1,0 +1,88 @@
+#!/bin/bash
+
+newSecret() {
+  echo "$(btsync --generate-secret)"
+}
+
+configBTSync() {
+  local secret="$1"
+  secret=${secret:-$(newSecret)} 
+
+
+  echo "{
+      \"device_name\": \"Sync Server $SERVICE_NAME\",
+      \"listening_port\": 55555,
+      \"storage_path\": \"/btsync/.sync\",
+      \"pid_file\": \"/var/run/btsync/btsync.pid\",
+      \"check_for_updates\": false,
+      \"use_upnp\": false,
+      \"download_limit\": 0,
+      \"upload_limit\": 0,
+      \"shared_folders\": [
+          {
+              \"secret\": \"$secret\",
+              \"dir\": \"/data\",
+              \"use_relay_server\": false,
+              \"use_tracker\": true,
+              \"use_dht\": false,
+              \"search_lan\": true,
+              \"use_sync_trash\": true,
+              \"known_hosts\": ["
+
+  line=0
+  for i in $(echo ${BTSYNC_PEERS})
+  do
+    let line=line+1
+    if [ "$line" -ge "$BTSYNC_PEER_COUNT" ]
+    then
+      echo "\"$i:55555\"" 
+    else
+      echo "\"$i:55555\"," 
+    fi
+  done
+
+  echo "]
+          }
+      ]
+  }" 
+}
+
+main() {
+  set -eo pipefail
+  SERVICE_NAME=${SERVICE_NAME:-"btsync"} 
+		# Required stuff to work
+		sleep 5
+		export BTSYNC_PEERS=$(dig +short ${SERVICE_NAME} | sort)
+		if [ -z "${BTSYNC_PEERS}" ]; then
+		   echo "*** ERROR: Could not determine which containers are part of this service."
+		   echo "*** Is this service named \"${SERVICE_NAME}\"? If not, please regenerate the service"
+		   echo "*** and add SERVICE_NAME environment variable which value should be equal to this service name"
+		   echo "*** Exiting ..."
+		   exit 1
+		fi
+		export BTSYNC_PEER_COUNT=$(dig +short ${SERVICE_NAME} | wc -l) 
+
+		export MY_RANCHER_IP=`ip addr | grep inet | grep 10.42 | tail -1 | awk '{print $2}' | awk -F\/ '{print $1}'`
+		if [ -z "${MY_RANCHER_IP}" ]; then
+		   echo "*** ERROR: Could not determine this container Rancher IP - Exiting ..."
+		   exit 1
+		fi
+  case "$1" in
+	  new-secret)         
+	    newSecret
+	    ;;
+	  test)                  
+	    shift
+	    echo "Starting btsync with secret: $secret"
+	    configBTSync "$@"
+	    ;;
+	  *)
+
+	    echo $(configBTSync "$@") > /btsync/btsync.conf
+	    grep secret /btsync/btsync.conf
+	    btsync --config /btsync/btsync.conf --nodaemon
+	    ;;
+  esac
+}
+
+main "$@"
