@@ -9,3 +9,4 @@ btsync:
     - /home/docker/databtsync:/data
   labels:
     io.rancher.scheduler.global: 'true'
+  mem_limit: 512000000
