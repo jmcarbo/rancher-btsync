@@ -1,0 +1,20 @@
+rancher_url=http://<rancher ip>:8080/
+rancher_access_key=<rancher access key>
+rancher_secret_key=<rancher secret key>
+aws_access_key_id=<aws access key>
+aws_secret_access_key=<aws secret access key>
+deploy:
+	@RANCHER_URL=$(rancher_url) \
+	RANCHER_ACCESS_KEY=$(rancher_access_key) \
+	RANCHER_SECRET_KEY=$(rancher_secret_key) \
+        AWS_ACCESS_KEY_ID=$(aws_access_key_id) \
+	AWS_SECRET_ACCESS_KEY=$(aws_secret_access_key) \
+	rancher-compose up -d
+
+destroy:
+	@RANCHER_URL=$(rancher_url) \
+	RANCHER_ACCESS_KEY=$(rancher_access_key) \
+	RANCHER_SECRET_KEY=$(rancher_secret_key) \
+        AWS_ACCESS_KEY_ID=$(aws_access_key_id) \
+	AWS_SECRET_ACCESS_KEY=$(aws_secret_access_key) \
+	rancher-compose rm --force
