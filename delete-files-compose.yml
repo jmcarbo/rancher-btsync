@@ -1,0 +1,10 @@
+delete:
+  #image: gliderlabs/alpine
+  image: ubuntu
+  volumes:
+    - /home/docker:/data
+  command: /bin/sh -c 'sleep 1 && echo "Deleteing data dir" && rm -rf /data/databtsync && while true; do sleep 100; done'
+  #stdin_open: true
+  #tty: true
+  labels:
+    io.rancher.scheduler.global: 'true'
