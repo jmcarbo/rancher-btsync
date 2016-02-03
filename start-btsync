@@ -22,9 +22,9 @@ configBTSync() {
           {
               \"secret\": \"$secret\",
               \"dir\": \"/data\",
-              \"use_relay_server\": false,
+              \"use_relay_server\": true,
               \"use_tracker\": true,
-              \"use_dht\": false,
+              \"use_dht\": true,
               \"search_lan\": true,
               \"use_sync_trash\": true,
               \"known_hosts\": ["
